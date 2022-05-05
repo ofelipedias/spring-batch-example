@@ -29,22 +29,23 @@ public class BatchConfiguration {
 
     private final PersonRepository personRepository;
 
-    @Bean
-    public Job personJob(JobCompletionListener listener, Step step) {
+    @Bean(name = "personJob")
+    public Job job(JobCompletionListener listener) {
         return jobBuilderFactory.get("personJob")
                 .incrementer(new RunIdIncrementer())
-                .start(step)
                 .listener(listener)
+                .flow(step())
+                .end()
                 .build();
     }
 
     @Bean
-    public Step step(RepositoryItemWriter<Person> writer) {
+    public Step step() {
         return stepBuilderFactory.get("step")
                 .<PersonDto, Person>chunk(10)
                 .reader(reader())
                 .processor(processor())
-                .writer(writer)
+                .writer(writer())
                 .build();
     }
 
@@ -52,7 +53,7 @@ public class BatchConfiguration {
     public FlatFileItemReader<PersonDto> reader() {
         return new FlatFileItemReaderBuilder<PersonDto>()
                 .name("personItemReader")
-                .resource(new ClassPathResource("persons.csv"))
+                .resource(new ClassPathResource("input/persons.csv"))
                 .delimited()
                 .names("firstName", "lastName", "age")
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<>() {{

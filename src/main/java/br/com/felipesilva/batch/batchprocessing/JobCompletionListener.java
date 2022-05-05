@@ -19,7 +19,7 @@ public class JobCompletionListener extends JobExecutionListenerSupport {
     public void afterJob(JobExecution jobExecution) {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             log.info("!!! JOB FINISHED !!!");
-            personRepository.findAll().forEach(p -> log.info("person={}", p));
+            personRepository.findAll().forEach(p -> log.info("found person={}", p));
         }
     }
 }
